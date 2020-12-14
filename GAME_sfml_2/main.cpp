@@ -492,8 +492,8 @@ int main()
 	{
 		switchTimeChange[i] = rand() % 300 / 100.0 + 1.5;
 		lizardstatus[i] = (rand() % 2) + 1;
-		randomlizard(lizardrec[i], i);
-		islizardDie[i] = true;
+		//randomlizard(lizardrec[i], i);
+		//islizardDie[i] = true;
 		lizardVeloX[i] = 2;
 	}
 	///////////////////////////////////////////////////////////  ตัวละคร   ///////////////////////////////////////////////////////////////
@@ -699,6 +699,13 @@ int main()
 	sf::Text enter1_13C("Enter 1 - 13 characters", zonebrownfont, 120);
 	enter1_13C.setOutlineThickness(1);
 	enter1_13C.setPosition(800 - enter1_13C.getGlobalBounds().width / 2, -430);
+	sf::Text DevNametext("63010766      POOMSAK KAEWSEE", zonebrownfont, 70);
+	DevNametext.setPosition(1100, -100);
+	DevNametext.setOutlineThickness(1);
+	sf::RectangleShape skillshapeBg1, skillshapeBg2, skillshapeBg3;
+	skillshapeBg1.setSize(sf::Vector2f(70, 70));
+	skillshapeBg2.setSize(sf::Vector2f(70, 70));
+	skillshapeBg3.setSize(sf::Vector2f(70, 70));
 	///////////////////////////////////////////////////////  Main menu   ///////////////////////////////////////////////////////////////
 	// game over //
 	sf::RectangleShape gameOverShape(sf::Vector2f(1600, 900));
@@ -791,10 +798,30 @@ int main()
 	bossMusic.setLoop(true);
 	ingameMusic.setLoop(true);
 
+	menuMusic.setVolume(15);
+	ingameMusic.setVolume(15);
+	bossMusic.setVolume(15);
+
 	//sf::SoundBuffer cursorSelectBuf;
-	//if (!cursorSelectBuf.loadFromFile("Music/cursorSelect.wav"))
+	//if (!cursorSelectBuf.loadFromFile("Music/cursorSelect.ogg"))
 	//	std::cout << "Load cursorSelect Failed";
 	//sf::Sound cursorSelect(cursorSelectBuf);
+
+	sf::Texture beamtex;
+	if (!beamtex.loadFromFile("picture/beam.png"))
+		std::cout << "Load beam Failed";
+	sf::Sprite beamSprite(beamtex);
+	beamSprite.setTextureRect(sf::IntRect(0, 0, 318, 145));
+
+	//Shield			210*187			x39
+	sf::Texture Shieldtex;
+	if (!Shieldtex.loadFromFile("picture/Shield210x187x39.png"))
+		std::cout << "Load Shield210x187x39 Failed";
+	sf::Sprite shieldSprite(Shieldtex);
+	shieldSprite.setTextureRect(sf::IntRect(0, 0, 0, 0));
+	shieldSprite.setColor(sf::Color(255, 255, 255, 140));
+
+	//beamSprite.setTextureRect(sf::IntRect(0, 0, 318, 145));//0 0 318*145  12x
 
 	///////////////////////////////////////////////////////////  ตั้งค่าอื่นๆ ///////////////////////////////////////////////////////////////
 	int animationframe8 = 0, animationframe5 = 0, animationframe3 = 0, animationframe12 = 0, animationfframe6 = 0, mageAnimation8 = 0, animationframe6slow = 0, animationframe10 = 0, lizardAttack5[20] = { 0 };
@@ -824,12 +851,20 @@ int main()
 	float debouceInput = 0;
 	int menu = 0;
 	float debouceLclick = 0;
+	float debouceRclick = 0;
 	int lizDeathAmount = 0;
 	int wave = 0, chapter = 0;
 	int mageDeathAmount = 0;
 	int jellyDeathAmount = 0;
 	int dragonDeathAmount = 0;
 	bool win = false;
+	bool beamOn = false;
+	int animationBeam12 = 0;
+	float animationBeam12tt = 0;
+	bool shieldOn = false;
+	int animationShield39 = 0;
+	float animationShield39tt = 0;
+	int skillSelect = 1;
 	sf::Vector2f base;
 	sf::Vector2f target;
 	sf::Vector2f aimDirLizard;
@@ -1192,14 +1227,27 @@ int main()
 				{
 					menu = 1;
 					score = 0;
-					playerHp = 10;
+					playerHp = 100;
 					playerrec.setPosition(0, 1800 - 90);
 					rgb = 255;
 					NameInGame.setString(inputString);
+					debouceLclick = 0;
+					debouceRclick = 0;
 					enermyVec.clear();
 					bulletsVec.clear();
 					menuMusic.stop();
 					ingameMusic.play();
+					for (int s = 0; s < 7; s++)//สุ่ม mage
+					{
+						e1.sprite.setPosition(sf::Vector2f(rand() % 3840, 800));
+						e1.currentVelocity = sf::Vector2f(5 + rand() % 6, 5 + rand() % 6);
+						e1.sprite.setTextureRect(sf::IntRect(0, 0, 122, 110));
+						e1.sprite.setScale(sf::Vector2f(1.5, 1.5));
+						e1.Redbg.setPosition(e1.sprite.getPosition().x + 41.5, e1.sprite.getPosition().y);
+						e1.HpGreen.setPosition(e1.sprite.getPosition().x + 41.5, e1.sprite.getPosition().y);
+						e1.TimeAtk = 4 + (rand() % 40) / 10.0;
+						enermyVec.push_back(Enermy(e1));
+					}
 				}
 			}
 			EnterNametext.setString("Enter name : " + inputString);
@@ -1356,23 +1404,23 @@ int main()
 		//chapter
 		if (chapter == 0)
 		{
-			if (mageDeathAmount == 0 && lizDeathAmount == 10)
+			if (mageDeathAmount == 0 && lizDeathAmount == 0)
 			{
-				wave = 1;
-				chapter = 1;
+				wave = 2;
+				chapter = 2;
 			}
 		}
-		else if (chapter == 1)
+		else if (chapter == 1)//skipped
 		{
-			if (mageDeathAmount == 7 && lizDeathAmount == 10)
-			{
-				chapter = 2;
-				wave = 2;
-			}
+			//if (mageDeathAmount == 7 && lizDeathAmount == 10)
+			//{
+			//	chapter = 2;
+			//	wave = 2;
+			//}
 		}
 		else if (chapter == 2)
 		{
-			if (mageDeathAmount == 14 && lizDeathAmount == 20)
+			if (mageDeathAmount == 14 && lizDeathAmount == 10)
 			{
 				chapter = 3;
 				wave = 3;
@@ -1380,7 +1428,7 @@ int main()
 		}
 		else if (chapter == 3)
 		{
-			if (mageDeathAmount == 34 && lizDeathAmount == 20)
+			if (mageDeathAmount == 34 && lizDeathAmount == 10)
 			{
 				wave = 4;
 				chapter = 4;
@@ -1593,7 +1641,7 @@ int main()
 					if (bulletsVec[p].sprite.getGlobalBounds().intersects(lizardrec[i].getGlobalBounds()))
 					{
 						bulletsVec.erase(bulletsVec.begin() + p);
-						lizardhp[i] -= 100;//15
+						lizardhp[i] -= 20;//15
 						break;
 					}
 				}
@@ -1895,14 +1943,14 @@ int main()
 					drag = 10.0;
 					playerHp -= 10;
 					playerImmune = true;
-					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 4;
+					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
 				}
 				else//มันหันซ้าย เราเลื่อนซ้าย
 				{
 					drag = -10.0;
 					playerHp -= 10;
 					playerImmune = true;
-					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 4;
+					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
 				}
 			}
 
@@ -1968,7 +2016,7 @@ int main()
 		}
 
 		//Game Over
-		if (playerHp <= 0 && menu == 1)
+		if (playerHp <= 0 && menu == 1 || (sf::Keyboard::isKeyPressed(sf::Keyboard::P) && menu == 1))
 		{
 			win = false;
 			menu = 99;
@@ -1992,6 +2040,7 @@ int main()
 			}
 			vec.clear();
 			WriteFile.close();
+
 			gameoverMusic.play();
 			ingameMusic.stop();
 			bossMusic.stop();
@@ -2028,6 +2077,12 @@ int main()
 				firesprite[p].setPosition(0, 2000);
 			}
 		}
+
+		//Hide cursor
+		if (menu == 1)
+			window.setMouseCursorVisible(false);
+		else
+			window.setMouseCursorVisible(true);
 
 		//item collistion coin hearth
 		for (int buff = 0; buff < 30; buff++)
@@ -2069,6 +2124,24 @@ int main()
 			HpBar.setFillColor(sf::Color(255 - (((500.0 * playerHp / playerMaxHp) - 250.0) * 255 / 250.0), 255, 0));
 		else if (500.0 * playerHp / playerMaxHp <= 500.0 / 2)
 			HpBar.setFillColor(sf::Color(255, (500.0 * playerHp / playerMaxHp) * 255 / 250.0, 0));
+		//Skill Select
+		skillshapeBg1.setPosition(cam.getCenter().x, cam.getCenter().y - 380);
+		skillshapeBg2.setPosition(cam.getCenter().x + 70, cam.getCenter().y - 380);
+		skillshapeBg3.setPosition(cam.getCenter().x + 140, cam.getCenter().y - 380);
+		switch (skillSelect)
+		{
+		case 1:
+			skillshapeBg1.setOutlineThickness(4);
+			skillshapeBg2.setOutlineThickness(2);
+			skillshapeBg3.setOutlineThickness(2);	
+			skillshapeBg1.setOutlineColor(sf::Color::Green);
+			skillshapeBg2.setOutlineColor(sf::Color::Black);
+			skillshapeBg3.setOutlineColor(sf::Color::Black);
+			skillshapeBg1.setScale(1.2, 1.2);
+			skillshapeBg1.setScale(1, 1);
+			skillshapeBg1.setScale(1, 1);
+			break;
+		}
 
 		//Text
 		GameTime = clock2.getElapsedTime().asSeconds();
@@ -2343,8 +2416,10 @@ int main()
 			bulletsVec.push_back(Bullet(b2));
 		}
 
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && menu == 1)
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && menu == 1 && debouceRclick < clock2.getElapsedTime().asSeconds())
 		{
+			//debouceRclick = clock2.getElapsedTime().asSeconds() + 0.2;
+
 			//b3.sprite.setRotation(rotate(playerCenter, mouseCam));
 			//b3.sprite.setOrigin(0, 45);//50x50
 			//b3.sprite.setPosition(playerCenter);
@@ -2396,13 +2471,65 @@ int main()
 			//e4.TimeAtk = 3 + (rand() % 20) / 10.0;
 			//enermyVec.push_back(Enermy(e4));
 
-			e5.sprite.setPosition(mouseCam);
-			e5.currentVelocity = sf::Vector2f(3 + rand() % 6, 3 + rand() % 6);
-			e5.Redbg.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
-			e5.HpGreen.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
-			e5.TimeAtk = 3 + (rand() % 20) / 10.0;
-			e5.sprite.setScale(2.5f, 2.5f);
-			enermyVec.push_back(Enermy(e5));
+			//e5.sprite.setPosition(mouseCam);
+			//e5.currentVelocity = sf::Vector2f(3 + rand() % 6, 3 + rand() % 6);
+			//e5.Redbg.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
+			//e5.HpGreen.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
+			//e5.TimeAtk = 3 + (rand() % 20) / 10.0;
+			//e5.sprite.setScale(2.5f, 2.5f);
+			//enermyVec.push_back(Enermy(e5));
+			beamOn = true;
+			shieldOn = true;
+		}
+		else
+		{
+			beamOn = false;
+			shieldOn = false;
+		}
+
+		//beam
+		if (beamOn)
+		{
+			beamSprite.setRotation(rotate(playerCenter, mouseCam));
+			beamSprite.setOrigin(0, 145.0 / 2.0);
+			beamSprite.setPosition(playerCenter);
+			beamSprite.setTextureRect(sf::IntRect(0, 145 * animationBeam12, 2000, 145));
+		}
+		else
+		{
+			beamSprite.setPosition(0, 0);
+			beamSprite.setTextureRect(sf::IntRect(0, 0, 318, 145));
+		}
+
+		//shield
+		if (shieldOn)
+		{
+			shieldSprite.setOrigin(210 / 2, 187 / 2.0);
+			shieldSprite.setPosition(playerCenter);
+			shieldSprite.setTextureRect(sf::IntRect(210 * animationShield39, 0, 210, 187));
+		}
+		else
+		{
+			shieldSprite.setPosition(0, 0);
+			shieldSprite.setTextureRect(sf::IntRect(0, 0, 210, 187));
+		}
+
+		animationBeam12tt += deltatime;
+		if (animationBeam12tt > 0.07)
+		{
+			animationBeam12tt -= 0.07;
+			animationBeam12++;
+			if (animationBeam12 == 12)
+				animationBeam12 = 0;
+		}
+
+		animationShield39tt += deltatime;
+		if (animationShield39tt > 0.07)
+		{
+			animationShield39tt -= 0.07;
+			animationShield39++;
+			if (animationShield39 == 39)
+				animationShield39 = 0;
 		}
 
 		//Bullet and Enermy Erase
@@ -2413,21 +2540,25 @@ int main()
 				bulletsVec.erase(bulletsVec.begin() + i);
 				break;
 			}//เช็คขอบ
-			if (bulletsVec[i].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()))
+			if (bulletsVec[i].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()) && !playerImmune)
 			{
 				bulletsVec.erase(bulletsVec.begin() + i);
-				playerHp -= 2;
+				playerHp -= 4;
+				playerImmune = true;
+				timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
 				break;
 			}
-			if (bulletsVec[i].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()))
+			if (bulletsVec[i].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()) && !playerImmune)
 			{
-				playerHp -= 5;
+				playerHp -= 20;
 				ex1.sprite.setPosition(playerrec.getPosition());
 				ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
 				ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
 				ex1.Type = 1;
 				explosionVec.push_back(ex1);
 				bulletsVec.erase(bulletsVec.begin() + i);
+				playerImmune = true;
+				timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
 				break;
 			}
 			bool breakk = false;
@@ -2435,7 +2566,7 @@ int main()
 			{
 				if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
-					enermyVec[j].HP -= 100;//20
+					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
 						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
@@ -2454,7 +2585,7 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 2 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
-					enermyVec[j].HP -= 100;//20
+					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
 						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
@@ -2473,7 +2604,7 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 3 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
-					enermyVec[j].HP -= 100;//20
+					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
 						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
@@ -2492,7 +2623,7 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
-					enermyVec[j].HP -= 5;
+					enermyVec[j].HP -= 20;
 					if (enermyVec[j].HP <= 0)
 					{
 						enermyVec.erase(enermyVec.begin() + j);
@@ -2504,7 +2635,7 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 5 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
-					enermyVec[j].HP -= 100;
+					enermyVec[j].HP -= 20;
 					if (enermyVec[j].HP <= 0)
 					{
 						enermyVec.erase(enermyVec.begin() + j);
@@ -2562,11 +2693,15 @@ int main()
 		//Enermy update
 		for (size_t i = 0; i < enermyVec.size(); i++)
 		{
+			//bat And boss To player
 			if (enermyVec[i].Type == 4 || enermyVec[i].Type == 5)
 			{
-				aimDirLizard = sf::Vector2f(playerCenter.x - enermyVec[i].sprite.getPosition().x - 170 * enermyVec[i].sprite.getScale().x/2, playerCenter.y - enermyVec[i].sprite.getPosition().y - 125 * enermyVec[i].sprite.getScale().y/2);
+				aimDirLizard = sf::Vector2f(playerCenter.x - enermyVec[i].sprite.getPosition().x - 170 * enermyVec[i].sprite.getScale().x/2 + 20, playerCenter.y - enermyVec[i].sprite.getPosition().y - 125 * enermyVec[i].sprite.getScale().y/2 + 30);
 				aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
-				enermyVec[i].currentVelocity = aimDirNormLizard * (2.0f + rand() % 20 / 10.0f);
+				if(enermyVec[i].Type == 4)
+					enermyVec[i].currentVelocity = aimDirNormLizard * (2.0f + rand() % 20 / 10.0f);
+				else if(enermyVec[i].Type == 5)
+					enermyVec[i].currentVelocity = aimDirNormLizard * (1.0f + rand() % 10 / 10.0f);
 			}
 			enermyVec[i].updateFrame(deltatime, cam.getCenter());
 			enermyVec[i].sprite.move(enermyVec[i].currentVelocity);
@@ -2677,8 +2812,23 @@ int main()
 				b4.currVelocity = aimDirNormLizard * 15.0f;
 				bulletsVec.push_back(Bullet(b4));
 			}
+			else if (enermyVec[i].Type == 5 && enermyVec[i].totalTimeATK > enermyVec[i].TimeAtk)
+			{
+				enermyVec[i].totalTimeATK -= enermyVec[i].TimeAtk;
+				//bat spawn
+				int randdom = rand();
+				if (randdom % 100 < 10);
+					for (short int r = 0; r < 7; r++)
+					{
+						e4.sprite.setPosition(enermyVec[i].sprite.getPosition().x + 170 / 2 * enermyVec[i].sprite.getScale().x, enermyVec[i].sprite.getPosition().y + 125 / 2 * enermyVec[i].sprite.getScale().y);
+						e4.currentVelocity = sf::Vector2f(3 + rand() % 6, 3 + rand() % 6);
+						e4.Redbg.setPosition(e4.sprite.getPosition().x + 20, e4.sprite.getPosition().y);
+						e4.HpGreen.setPosition(e4.sprite.getPosition().x + 20, e4.sprite.getPosition().y);
+						e4.TimeAtk = 3 + (rand() % 20) / 10.0;
+						enermyVec.push_back(Enermy(e4));
+					}
+			}
 		}
-
 		//Draw
 		window.setView(cam);
 		window.clear();
@@ -2698,6 +2848,7 @@ int main()
 			window.draw(leaderboardtext);
 			window.draw(howplaytext);
 			window.draw(exittext);
+			window.draw(DevNametext);
 		}
 		else if (menu == 10)
 		{
@@ -2786,16 +2937,20 @@ int main()
 			{
 				window.draw(bulletsVec[i].sprite);
 			}
-			for (size_t i = 0; i < enermyVec.size(); i++)
+			for (long long i = enermyVec.size() - 1 ; i >= 0; i--)
 			{
 				window.draw(enermyVec[i].sprite);
 				window.draw(enermyVec[i].Redbg);
 				window.draw(enermyVec[i].HpGreen);
 			}
+
 			for (size_t i = 0; i < explosionVec.size(); i++)
 			{
 				window.draw(explosionVec[i].sprite);
 			}
+
+			window.draw(beamSprite);
+			window.draw(shieldSprite);
 
 			window.draw(timeLefttext);
 			window.draw(scoretext);
@@ -2811,10 +2966,17 @@ int main()
 			window.draw(NameInGame);
 			window.draw(albusSprite);
 
+			switch (skillSelect)
+			{
+			case 1:
+				window.draw(skillshapeBg2);
+				window.draw(skillshapeBg3);
+				window.draw(skillshapeBg1);
+				break;
+			}
 		}
 
 		window.draw(curRect);
-
 		window.display();
 	}
 	return 0;
