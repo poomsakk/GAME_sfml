@@ -205,7 +205,7 @@ public:
 			{
 				currentVelocity.x = 1 + (rand() % 20) / 10.0f;
 			}
-			else if (sprite.getPosition().x > 3840)
+			else if (sprite.getPosition().x > 3640)
 			{
 				currentVelocity.x = -1 - (rand() % 20) / 10.0f;
 			}
@@ -385,6 +385,7 @@ void lizarddrop(sf::Vector2f position, int dropRateHearth, int dropRateCoin, int
 {
 	int hp = rand() % 100;
 	int co = rand() % 100;
+	int starrand = rand() % 100;
 	if (hp < dropRateHearth)
 	{
 		for (int i = 0; i < 30; i++)
@@ -405,6 +406,18 @@ void lizarddrop(sf::Vector2f position, int dropRateHearth, int dropRateCoin, int
 			{
 				coinSprite[i].setPosition(position.x + 15, position.y + 10);
 				coinOnScreen[i] = true;
+				break;
+			}
+		}
+	}
+	if (starrand < DropRateStar)
+	{
+		for (int i = 0; i < 30; i++)
+		{
+			if (!starOnScreen[i])
+			{
+				starSprite[i].setPosition(position.x + 15, position.y + 10);
+				starOnScreen[i] = true;
 				break;
 			}
 		}
@@ -693,19 +706,51 @@ int main()
 	sf::Text backtext("BACK", zonebrownfont, 120);
 	backtext.setOutlineThickness(1);
 	backtext.setPosition(800 - backtext.getGlobalBounds().width / 2, -250);
-	sf::Text EnterNametext("Enter name : ", zonebrownfont, 120);
+	sf::Text EnterNametext("ENTER NAME : ", zonebrownfont, 120);
 	EnterNametext.setPosition(400, -600);
 	EnterNametext.setOutlineThickness(1);
-	sf::Text enter1_13C("Enter 1 - 13 characters", zonebrownfont, 120);
+	sf::Text enter1_13C("(1 - 13 characters)", zonebrownfont, 120);
 	enter1_13C.setOutlineThickness(1);
-	enter1_13C.setPosition(800 - enter1_13C.getGlobalBounds().width / 2, -430);
+	enter1_13C.setPosition(800 - enter1_13C.getGlobalBounds().width / 2, -500);
 	sf::Text DevNametext("63010766      POOMSAK KAEWSEE", zonebrownfont, 70);
 	DevNametext.setPosition(1100, -100);
 	DevNametext.setOutlineThickness(1);
+	DevNametext.setFillColor(sf::Color(255, 0, 108));
 	sf::RectangleShape skillshapeBg1, skillshapeBg2, skillshapeBg3;
 	skillshapeBg1.setSize(sf::Vector2f(70, 70));
 	skillshapeBg2.setSize(sf::Vector2f(70, 70));
 	skillshapeBg3.setSize(sf::Vector2f(70, 70));
+	sf::Text pressEntertext("PRESS ENTER TO START", zonebrownfont, 80);
+	pressEntertext.setPosition(800 - pressEntertext.getGlobalBounds().width / 2, -400);
+	pressEntertext.setOutlineThickness(1);
+	pressEntertext.setFillColor(sf::Color::Cyan);
+	sf::Texture adtex, mousewheeltex, tex123, spacebartex;
+	if (!adtex.loadFromFile("picture/wasd.png"))
+		std::cout << "LOAD adtex failed" << std::endl;
+	if (!mousewheeltex.loadFromFile("picture/wheel.png"))
+		std::cout << "LOAD mousewheeltex failed" << std::endl;
+	if (!tex123.loadFromFile("picture/123.png"))
+		std::cout << "LOAD tex123 failed" << std::endl;
+	if (!spacebartex.loadFromFile("picture/spacebar.png"))
+		std::cout << "LOAD spacebartex failed" << std::endl;
+	sf::Sprite how1(adtex);
+	sf::Sprite how2(spacebartex);
+	sf::Sprite how3(tex123);
+	sf::Sprite how4(mousewheeltex);
+	how1.setPosition(0, -900);
+	how2.setPosition(200, -900);
+	how3.setPosition(400, -900);
+	how4.setPosition(600, -900);
+	how1.setScale(1.2, 1.2);
+	how2.setScale(.5, .5);
+	how3.setScale(0.5, 0.5);
+	how4.setScale(.1, .1);
+
+	sf::Text howtoplaydetailtext("MOVE\n\nJUMP\n\nSELECT SKILL                                 OR", zonebrownfont, 130);
+	howtoplaydetailtext.setPosition(200, -700);
+	howtoplaydetailtext.setOutlineThickness(1);
+	sf::Text kkkk("SHOOT\t\t\t \t\t\t\t\t\t\t\tLEFT CLICK\nSHIELD\t\t\t\t\t\t\t\t\t\t\tRIGHT CLICK", zonebrownfont, 120);
+	kkkk.setOutlineThickness(1);
 	///////////////////////////////////////////////////////  Main menu   ///////////////////////////////////////////////////////////////
 	// game over //
 	sf::RectangleShape gameOverShape(sf::Vector2f(1600, 900));
@@ -800,12 +845,30 @@ int main()
 
 	menuMusic.setVolume(15);
 	ingameMusic.setVolume(15);
-	bossMusic.setVolume(15);
+	bossMusic.setVolume(30);
 
 	//sf::SoundBuffer cursorSelectBuf;
 	//if (!cursorSelectBuf.loadFromFile("Music/cursorSelect.ogg"))
 	//	std::cout << "Load cursorSelect Failed";
 	//sf::Sound cursorSelect(cursorSelectBuf);
+	sf::SoundBuffer bullet1texSB,fireballsb,explosionSB,skill3SB;
+	if (!bullet1texSB.loadFromFile("Music/laser-gun.wav"))
+		std::cout << "Load laser-gun Failed";
+	if (!fireballsb.loadFromFile("Music/Fireballsound.wav"))
+		std::cout << "Load fireballsb Failed";
+	if (!explosionSB.loadFromFile("Music/Explosions.wav"))
+		std::cout << "Load Explosions Failed";
+	if (!skill3SB.loadFromFile("Music/LaserBeam.wav"))
+		std::cout << "Load LaserBeam Failed";
+
+	sf::Sound laserSound(bullet1texSB);
+	sf::Sound explosionSound(explosionSB);
+	sf::Sound fireballSound(fireballsb);
+	sf::Sound BeamSound(skill3SB);
+	laserSound.setVolume(15);
+	explosionSound.setVolume(15);
+	fireballSound.setVolume(25);
+	BeamSound.setVolume(45);
 
 	sf::Texture beamtex;
 	if (!beamtex.loadFromFile("picture/beam.png"))
@@ -822,7 +885,18 @@ int main()
 	shieldSprite.setColor(sf::Color(255, 255, 255, 140));
 
 	//beamSprite.setTextureRect(sf::IntRect(0, 0, 318, 145));//0 0 318*145  12x
+	sf::Texture fireballiocntex;
+	if (!fireballiocntex.loadFromFile("picture/fire-ball.png"))
+		std::cout << "Load fire-ball Failed";
 
+	skillshapeBg1.setTexture(&newBullettex);
+	skillshapeBg2.setTexture(&fireballiocntex);
+	skillshapeBg3.setTexture(&beamtex);
+	skillshapeBg1.setTextureRect(sf::IntRect(0, 0, 47, 47));
+	skillshapeBg2.setTextureRect(sf::IntRect(0, 0, 600, 600));
+	skillshapeBg3.setTextureRect(sf::IntRect(0, 0, 140, 140));
+	sf::RectangleShape whiteBgSkillIcon(sf::Vector2f(210, 70));
+	whiteBgSkillIcon.setFillColor(sf::Color(255, 255, 255, 180));
 	///////////////////////////////////////////////////////////  ตั้งค่าอื่นๆ ///////////////////////////////////////////////////////////////
 	int animationframe8 = 0, animationframe5 = 0, animationframe3 = 0, animationframe12 = 0, animationfframe6 = 0, mageAnimation8 = 0, animationframe6slow = 0, animationframe10 = 0, lizardAttack5[20] = { 0 };
 	float deltatime = 0, totaltime = 0, switchtime = 0.2, totaltime2 = 0, switchtime2 = 0.1, totaltime3 = 0, switchtime3 = 0.08;
@@ -865,6 +939,7 @@ int main()
 	int animationShield39 = 0;
 	float animationShield39tt = 0;
 	int skillSelect = 1;
+	float Startime = 0;
 	sf::Vector2f base;
 	sf::Vector2f target;
 	sf::Vector2f aimDirLizard;
@@ -902,7 +977,38 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 			if (event.type == sf::Event::MouseWheelMoved)
-				std::cout << event.mouseWheel.delta << "\n";
+			{
+				if (event.mouseWheel.delta == -1)
+				{
+					switch (skillSelect)
+					{
+					case 1:
+						skillSelect = 2;
+						break;
+					case 2:
+						skillSelect = 3;
+						break;
+					case 3:
+						skillSelect = 1;
+						break;
+					}
+				}
+				else if (event.mouseWheel.delta == 1)
+				{
+					switch (skillSelect)
+					{
+					case 1:
+						skillSelect = 3;
+						break;
+					case 2:
+						skillSelect = 1;
+						break;
+					case 3:
+						skillSelect = 2;
+						break;
+					}
+				}
+			}
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
@@ -934,6 +1040,7 @@ int main()
 			startjump = true;
 			noway = true;
 		}
+
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::K) && menu == 1)
 		{
 			if (!wizattack1 && !wizattack2 && !startjump && playerMana - skill1manacost >= 0)
@@ -1116,6 +1223,20 @@ int main()
 				}
 			}
 		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && menu == 1)
+		{
+			skillSelect = 1;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) && menu == 1)
+		{
+			skillSelect = 2;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) && menu == 1)
+		{
+			skillSelect = 3;
+		}
+
+
 
 		//Main menu
 		if (menu == 0)
@@ -1145,7 +1266,7 @@ int main()
 				howplaytext.setFillColor(sf::Color::Red);
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 				{
-					//add
+					menu = 2;
 				}
 			}
 			else if (leaderboardtext.getGlobalBounds().contains(mouseMenu))
@@ -1185,6 +1306,7 @@ int main()
 				leaderboardtext.setFillColor(sf::Color::White);
 				exittext.setFillColor(sf::Color::White);
 			}
+			chapter = -1;
 		}
 		else if (menu == 10)
 		{
@@ -1228,6 +1350,8 @@ int main()
 					menu = 1;
 					score = 0;
 					playerHp = 100;
+					playerMana = 100;
+					skillSelect = 1;
 					playerrec.setPosition(0, 1800 - 90);
 					rgb = 255;
 					NameInGame.setString(inputString);
@@ -1237,6 +1361,12 @@ int main()
 					bulletsVec.clear();
 					menuMusic.stop();
 					ingameMusic.play();
+					chapter = 0;
+					jellyDeathAmount = 0;
+					mageDeathAmount = 0;
+					timeToNoImmune = 0;
+					lizDeathAmount = 0;
+					Startime = 0;
 					for (int s = 0; s < 7; s++)//สุ่ม mage
 					{
 						e1.sprite.setPosition(sf::Vector2f(rand() % 3840, 800));
@@ -1250,7 +1380,39 @@ int main()
 					}
 				}
 			}
-			EnterNametext.setString("Enter name : " + inputString);
+			EnterNametext.setString("ENTER NAME : " + inputString);
+		}
+		else if (menu == 2)
+		{
+			clock2.restart().asSeconds();
+			cam.setCenter(sf::Vector2f(800, -450));
+			MenuBgMove(menuSky, -100);//เพื่อ?
+			MenuBgMove(menuRock1, -50);
+			MenuBgMove(menuRock2, -100);
+			MenuBgMove(menuClound1, -110);
+			MenuBgMove(menuClound2, -130);
+			MenuBgMove(menuClound3, -150);
+			MenuBgMove(menuClound4, -170);
+			sf::Vector2f mouseMenu;
+			mouseMenu = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y - 900);
+			std::cout << mouseMenu.x << " " << mouseMenu.y << "\n";
+			how1.setPosition(677 + 150, -775);
+			how2.setPosition(750 + 150, -512);
+			how3.setPosition(504, -418);
+			how4.setPosition(1031, -374);
+			kkkk.setPosition(200, -900);
+			if (backtext.getGlobalBounds().contains(mouseMenu))
+			{
+				backtext.setFillColor(sf::Color::Red);
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+				{
+					menu = 0;
+				}
+			}
+			else
+			{
+				backtext.setFillColor(sf::Color::White);
+			}
 		}
 		else if (menu == 3)
 		{
@@ -1284,8 +1446,9 @@ int main()
 			cam.setCenter(sf::Vector2f(800, -450));
 			sf::Vector2f mouseMenu;
 			mouseMenu = sf::Vector2f(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y - 900);
-			yourScoreText.setString("YOUR SCORE : " + std::to_string(score));
 			yourScoreText.setPosition(800 - yourScoreText.getGlobalBounds().width / 2, -680);
+			enermyVec.clear();
+			bulletsVec.clear();
 			if (backtext.getGlobalBounds().contains(mouseMenu))
 			{
 				backtext.setFillColor(sf::Color::Red);
@@ -1400,7 +1563,51 @@ int main()
 			}
 			wave = 0;
 			break;
+		case 6:
+			for (int i = 0; i < 12; i++)//สุ่ม Dragon
+			{
+				if (rand() % 2 == 0)
+					e3.sprite.setPosition(-100, 1000 + rand() % 200);
+				else
+					e3.sprite.setPosition(3900, 1000 + rand() % 200);
+				e3.currentVelocity = sf::Vector2f(4 + rand() % 5, 0);
+				e3.sprite.setTextureRect(sf::IntRect(0, 0, 155, 170));
+				e3.Redbg.setPosition(e3.sprite.getPosition().x + 35, e3.sprite.getPosition().y);
+				e3.HpGreen.setPosition(e3.sprite.getPosition().x + 35, e3.sprite.getPosition().y);
+				e3.TimeAtk = 3 + (rand() % 15) / 10.0;
+				enermyVec.push_back(Enermy(e3));
+			}
+			for (int i = 0; i < 2; i++)//สุ่ม Jelly
+			{
+				e2.sprite.setPosition(sf::Vector2f(rand() % 3840, 800));
+				e2.currentVelocity = sf::Vector2f(3 + rand() % 6, 3 + rand() % 6);
+				e2.sprite.setTextureRect(sf::IntRect(0, 0, 290, 274));
+				e2.Redbg.setPosition(e2.sprite.getPosition().x + 70, e2.sprite.getPosition().y);
+				e2.HpGreen.setPosition(e2.sprite.getPosition().x + 70, e2.sprite.getPosition().y);
+				e2.TimeAtk = 3 + (rand() % 20) / 10.0;
+				enermyVec.push_back(Enermy(e2));
+			}
+			e5.sprite.setPosition(playerCenter.x, playerCenter.y - 600);
+			e5.currentVelocity = sf::Vector2f(3 + rand() % 6, 3 + rand() % 6);
+			e5.Redbg.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
+			e5.HpGreen.setPosition(e5.sprite.getPosition().x + 100, e5.sprite.getPosition().y);
+			e5.TimeAtk = 2;
+			e5.sprite.setScale(2.5f, 2.5f);
+			enermyVec.push_back(Enermy(e5));
+			wave = 0;
+			bossMusic.play();
+			ingameMusic.stop();
+			break;
 		}
+
+		//GOD MODE
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num7) && sf::Keyboard::isKeyPressed(sf::Keyboard::Num8) && menu == 1)
+		{
+			playerMana = 10000;
+			Startime = clock2.getElapsedTime().asSeconds() + 1000;
+		}
+
 		//chapter
 		if (chapter == 0)
 		{
@@ -1420,15 +1627,15 @@ int main()
 		}
 		else if (chapter == 2)
 		{
-			if (mageDeathAmount == 14 && lizDeathAmount == 10)
+			if (mageDeathAmount == 7 + 7 && lizDeathAmount == 10)
 			{
-				chapter = 3;
-				wave = 3;
+				chapter = 3;//3
+				wave = 3;//3
 			}
 		}
 		else if (chapter == 3)
 		{
-			if (mageDeathAmount == 34 && lizDeathAmount == 10)
+			if (mageDeathAmount == 27 + 7 && lizDeathAmount == 10)
 			{
 				wave = 4;
 				chapter = 4;
@@ -1436,12 +1643,21 @@ int main()
 		}
 		else if (chapter == 4)
 		{
-			if (jellyDeathAmount == 4 && mageDeathAmount == 38)
+			if (jellyDeathAmount == 4 && mageDeathAmount == 31 + 7)
 			{
 				wave = 5;
 				chapter = 5;
 			}
 		}
+		else if (chapter == 5)
+		{
+			if (jellyDeathAmount == 7 && mageDeathAmount == 31 + 7)
+			{
+				wave = 6;
+				chapter = 6;
+			}
+		}
+
 
 		//Jump
 		if (startjump)
@@ -1642,9 +1858,25 @@ int main()
 					{
 						bulletsVec.erase(bulletsVec.begin() + p);
 						lizardhp[i] -= 20;//15
+						playerMana += 2;
+						if (playerMana >= playerMaxMana)
+							playerMana = 100;
 						break;
 					}
 				}
+				else if (bulletsVec[p].Type == 3)
+				{
+					if (bulletsVec[p].sprite.getGlobalBounds().intersects(lizardrec[i].getGlobalBounds()))
+					{
+						bulletsVec.erase(bulletsVec.begin() + p);
+						lizardhp[i] -= 60;//15
+						break;
+					}
+				}
+			}
+			if (lizardrec[i].getGlobalBounds().intersects(beamSprite.getGlobalBounds()))
+			{
+				lizardhp[i]--;
 			}
 
 
@@ -1936,7 +2168,7 @@ int main()
 			}
 
 			//Immune && ตีผู้เล่น
-			if (!playerImmune && playerrec.getGlobalBounds().intersects(lizardAttack[i].getGlobalBounds()) && !lizardDeadAnimationStart[i])
+			if (!playerImmune && playerrec.getGlobalBounds().intersects(lizardAttack[i].getGlobalBounds()) && !lizardDeadAnimationStart[i] && !shieldOn)
 			{
 				if (lizardLR[i])//มันหันขวา เราเลื่อนขวา
 				{
@@ -2040,6 +2272,7 @@ int main()
 			}
 			vec.clear();
 			WriteFile.close();
+			yourScoreText.setString("YOUR SCORE : " + std::to_string(score));
 
 			gameoverMusic.play();
 			ingameMusic.stop();
@@ -2105,6 +2338,12 @@ int main()
 				coin += rand() % 50 + 100;
 				coinSprite[buff].setPosition(sf::Vector2f(0, 0));
 			}
+			if (playerrec.getGlobalBounds().intersects(starSprite[buff].getGlobalBounds()))
+			{
+				starOnScreen[buff] = false;
+				Startime = clock2.getElapsedTime().asSeconds() + 5;
+				starSprite[buff].setPosition(sf::Vector2f(0, 0));
+			}
 		}
 
 		bgsprite.setColor(sf::Color(rgb, rgb, rgb));//BG color
@@ -2115,8 +2354,8 @@ int main()
 		int m = 70;
 		//HP & MANA
 		bgHpBar.setPosition(cam.getCenter().x - 700 + m, cam.getCenter().y - 400 + 60);//<------- OLD = bgHpBar.setPosition(cam.getCenter().x - 700, cam.getCenter().y - 400);
-		bgManaBar.setPosition(cam.getCenter().x - 700, cam.getCenter().y - 400 + 30);
-		ManaBar.setPosition(cam.getCenter().x - 700, cam.getCenter().y - 400 + 30);
+		bgManaBar.setPosition(cam.getCenter().x - 700 + m, cam.getCenter().y - 400 + 60 + 30);
+		ManaBar.setPosition(cam.getCenter().x - 700 + m, cam.getCenter().y - 400 + 60 + 30);
 		HpBar.setPosition(cam.getCenter().x - 700 + m, cam.getCenter().y - 400 + 60);//<------- OLD = HpBar.setPosition(cam.getCenter().x - 700, cam.getCenter().y - 400);
 		HpBar.setSize(sf::Vector2f(500.0 * playerHp / playerMaxHp, 20));
 		ManaBar.setSize(sf::Vector2f(500.0 * playerMana / playerMaxMana, 20));
@@ -2128,18 +2367,32 @@ int main()
 		skillshapeBg1.setPosition(cam.getCenter().x, cam.getCenter().y - 380);
 		skillshapeBg2.setPosition(cam.getCenter().x + 70, cam.getCenter().y - 380);
 		skillshapeBg3.setPosition(cam.getCenter().x + 140, cam.getCenter().y - 380);
+		whiteBgSkillIcon.setPosition(skillshapeBg1.getPosition());
 		switch (skillSelect)
 		{
 		case 1:
-			skillshapeBg1.setOutlineThickness(4);
-			skillshapeBg2.setOutlineThickness(2);
-			skillshapeBg3.setOutlineThickness(2);	
+			skillshapeBg1.setOutlineThickness(3);
+			skillshapeBg2.setOutlineThickness(0);
+			skillshapeBg3.setOutlineThickness(0);	
 			skillshapeBg1.setOutlineColor(sf::Color::Green);
 			skillshapeBg2.setOutlineColor(sf::Color::Black);
 			skillshapeBg3.setOutlineColor(sf::Color::Black);
-			skillshapeBg1.setScale(1.2, 1.2);
-			skillshapeBg1.setScale(1, 1);
-			skillshapeBg1.setScale(1, 1);
+			break;
+		case 2:
+			skillshapeBg1.setOutlineThickness(0);
+			skillshapeBg2.setOutlineThickness(3);
+			skillshapeBg3.setOutlineThickness(0);
+			skillshapeBg1.setOutlineColor(sf::Color::Black);
+			skillshapeBg2.setOutlineColor(sf::Color::Green);
+			skillshapeBg3.setOutlineColor(sf::Color::Black);
+			break;
+		case 3:
+			skillshapeBg1.setOutlineThickness(0);
+			skillshapeBg2.setOutlineThickness(0);
+			skillshapeBg3.setOutlineThickness(3);
+			skillshapeBg1.setOutlineColor(sf::Color::Black);
+			skillshapeBg2.setOutlineColor(sf::Color::Black);
+			skillshapeBg3.setOutlineColor(sf::Color::Green);
 			break;
 		}
 
@@ -2181,10 +2434,10 @@ int main()
 
 			if (playerMana < playerMaxMana)
 			{
-				if (playerMana + manaregen > playerMaxMana)
+				if (playerMana + 1 > playerMaxMana)
 					playerMana = playerMaxMana;
 				else
-					playerMana += manaregen;
+					playerMana += 1;
 			}
 
 			if (animationframe8 == 8)
@@ -2405,18 +2658,50 @@ int main()
 		aimDirNorm = aimDir / sqrt(aimDir.x * aimDir.x + aimDir.y * aimDir.y);
 
 		//shoot bullet
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && menu == 1 && debouceLclick < clock2.getElapsedTime().asSeconds())
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && menu == 1 && debouceLclick < clock2.getElapsedTime().asSeconds() && skillSelect == 1)
 		{
-			debouceLclick = clock2.getElapsedTime().asSeconds() + 0.3;
+			if (Startime > clock2.getElapsedTime().asSeconds())
+				debouceLclick = clock2.getElapsedTime().asSeconds() + 0.1;
+			else
+				debouceLclick = clock2.getElapsedTime().asSeconds() + 0.3;
 			b2.sprite.setRotation(rotate(playerCenter, mouseCam));
 			b2.sprite.setOrigin(0, 25);//50x50
 			b2.sprite.setPosition(playerCenter);
 			b2.sprite.setTextureRect(sf::IntRect(0, 0, 50, 50));
 			b2.currVelocity = aimDirNorm * 15.0f;
 			bulletsVec.push_back(Bullet(b2));
+			laserSound.play();
 		}
-
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && menu == 1 && debouceRclick < clock2.getElapsedTime().asSeconds())
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && menu == 1 && debouceLclick < clock2.getElapsedTime().asSeconds() && skillSelect == 2 && playerMana >= 15)
+		{
+			
+			if (Startime > clock2.getElapsedTime().asSeconds())
+			{
+				debouceLclick = clock2.getElapsedTime().asSeconds() + 0.25;
+				playerMana -= 7;
+			}
+			else
+			{
+				playerMana -= 15;
+				debouceLclick = clock2.getElapsedTime().asSeconds() + 0.5;
+			}
+			b3.sprite.setRotation(rotate(playerCenter, mouseCam));
+			b3.sprite.setOrigin(0, 45);//50x50
+			b3.sprite.setPosition(playerCenter);
+			b3.sprite.setTextureRect(sf::IntRect(0, 0, 234, 90));
+			b3.currVelocity = aimDirNorm * 15.0f;
+			bulletsVec.push_back(Bullet(b3));
+			fireballSound.play();
+		}
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && menu == 1 && debouceLclick < clock2.getElapsedTime().asSeconds() && skillSelect == 3 && playerMana > 0)
+		{
+			if (Startime > clock2.getElapsedTime().asSeconds())
+				playerMana -= 0.05;
+			else
+				playerMana -= 0.3;
+			beamOn = true;
+		}
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && menu == 1 && debouceRclick < clock2.getElapsedTime().asSeconds() && !sf::Mouse::isButtonPressed(sf::Mouse::Left) && playerMana > 0)
 		{
 			//debouceRclick = clock2.getElapsedTime().asSeconds() + 0.2;
 
@@ -2478,7 +2763,11 @@ int main()
 			//e5.TimeAtk = 3 + (rand() % 20) / 10.0;
 			//e5.sprite.setScale(2.5f, 2.5f);
 			//enermyVec.push_back(Enermy(e5));
-			beamOn = true;
+			//beamOn = true;
+			if (Startime > clock2.getElapsedTime().asSeconds())
+				playerMana -= 0.05;
+			else
+				playerMana -= 0.2;
 			shieldOn = true;
 		}
 		else
@@ -2494,9 +2783,12 @@ int main()
 			beamSprite.setOrigin(0, 145.0 / 2.0);
 			beamSprite.setPosition(playerCenter);
 			beamSprite.setTextureRect(sf::IntRect(0, 145 * animationBeam12, 2000, 145));
+			if(BeamSound.getStatus() == 0)
+				BeamSound.play();
 		}
 		else
 		{
+			BeamSound.stop();
 			beamSprite.setPosition(0, 0);
 			beamSprite.setTextureRect(sf::IntRect(0, 0, 318, 145));
 		}
@@ -2543,22 +2835,29 @@ int main()
 			if (bulletsVec[i].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()) && !playerImmune)
 			{
 				bulletsVec.erase(bulletsVec.begin() + i);
-				playerHp -= 4;
-				playerImmune = true;
-				timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
+				if (!shieldOn)
+				{
+					playerHp -= 4;
+					playerImmune = true;
+					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
+				}
 				break;
 			}
 			if (bulletsVec[i].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()) && !playerImmune)
 			{
-				playerHp -= 20;
+				if (!shieldOn)
+				{
+					playerHp -= 8;
+					playerImmune = true;
+					timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
+				}
 				ex1.sprite.setPosition(playerrec.getPosition());
 				ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
 				ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
 				ex1.Type = 1;
 				explosionVec.push_back(ex1);
+				explosionSound.play();
 				bulletsVec.erase(bulletsVec.begin() + i);
-				playerImmune = true;
-				timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
 				break;
 			}
 			bool breakk = false;
@@ -2566,15 +2865,20 @@ int main()
 			{
 				if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
+					if (playerMana + 2 > playerMaxMana)
+						playerMana = playerMaxMana;
+					else
+						playerMana += 2;
 					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
-						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 10, 0, 5);
 						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
 						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
 						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
 						ex1.Type = 1;
 						explosionVec.push_back(ex1);
+						explosionSound.play();
 						enermyVec.erase(enermyVec.begin() + j);
 						score += 200;
 						mageDeathAmount++;
@@ -2585,15 +2889,23 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 2 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
+					if (playerMana + 2 > playerMaxMana)
+						playerMana = playerMaxMana;
+					else
+						playerMana += 2;
 					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
-						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
 						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
 						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
 						ex1.sprite.setScale(sf::Vector2f(1, 1));
 						ex1.Type = 1;
 						explosionVec.push_back(ex1);
+						explosionSound.play();
 						enermyVec.erase(enermyVec.begin() + j);
 						score += 1000;
 						jellyDeathAmount++;
@@ -2604,15 +2916,20 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 3 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
+					if (playerMana + 2 > playerMaxMana)
+						playerMana = playerMaxMana;
+					else
+						playerMana += 2;
 					enermyVec[j].HP -= 20;//20
 					if (enermyVec[j].HP <= 0)
 					{
-						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 50, 0, 10);
 						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
 						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
 						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
 						ex1.Type = 1;
 						explosionVec.push_back(ex1);
+						explosionSound.play();
 						enermyVec.erase(enermyVec.begin() + j);
 						score += 500;
 						dragonDeathAmount++;
@@ -2623,11 +2940,16 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
+					if (playerMana + 2 > playerMaxMana)
+						playerMana = playerMaxMana;
+					else
+						playerMana += 2;
 					enermyVec[j].HP -= 20;
 					if (enermyVec[j].HP <= 0)
 					{
+						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 1);
 						enermyVec.erase(enermyVec.begin() + j);
-						score += 100;
+						score += 10;
 					}
 					bulletsVec.erase(bulletsVec.begin() + i);
 					breakk = true;
@@ -2635,11 +2957,16 @@ int main()
 				}
 				else if (bulletsVec[i].Type == 2 && enermyVec[j].Type == 5 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
 				{
+					if (playerMana + 2 > playerMaxMana)
+						playerMana = playerMaxMana;
+					else
+						playerMana += 2;
 					enermyVec[j].HP -= 20;
 					if (enermyVec[j].HP <= 0)
 					{
 						enermyVec.erase(enermyVec.begin() + j);
 						score += 8000;
+						score += (600 - clock2.getElapsedTime().asSeconds()) * 30;
 						menu = 99;
 						win = true;
 						std::string word;
@@ -2660,6 +2987,122 @@ int main()
 							text[2 * i + 2].setString(std::to_string(i + 1) + ". " + vec[i].first);
 							text[2 * i + 3].setString(std::to_string(vec[i].second));
 						}
+						yourScoreText.setString("YOUR SCORE : " + std::to_string(score));
+						vec.clear();
+						WriteFile.close();
+						ingameMusic.stop();
+						bossMusic.stop();
+					}
+					bulletsVec.erase(bulletsVec.begin() + i);
+					breakk = true;
+					break;
+				}
+				//fireball
+				if (bulletsVec[i].Type == 3 && enermyVec[j].Type == 1 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
+				{
+					enermyVec[j].HP -= 60;//20
+					if (enermyVec[j].HP <= 0)
+					{
+						lizarddrop(enermyVec[j].sprite.getPosition(), 10, 0, 5);
+						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						enermyVec.erase(enermyVec.begin() + j);
+						score += 200;
+						mageDeathAmount++;
+					}
+					bulletsVec.erase(bulletsVec.begin() + i);
+					breakk = true;
+					break;
+				}
+				else if (bulletsVec[i].Type == 3 && enermyVec[j].Type == 2 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
+				{
+					enermyVec[j].HP -= 60;//20
+					if (enermyVec[j].HP <= 0)
+					{
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[j].sprite.getPosition(), 100, 0, 0);
+						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(1, 1));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						enermyVec.erase(enermyVec.begin() + j);
+						score += 1000;
+						jellyDeathAmount++;
+					}
+					bulletsVec.erase(bulletsVec.begin() + i);
+					breakk = true;
+					break;
+				}
+				else if (bulletsVec[i].Type == 3 && enermyVec[j].Type == 3 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
+				{
+					enermyVec[j].HP -= 60;//20
+					if (enermyVec[j].HP <= 0)
+					{
+						lizarddrop(enermyVec[j].sprite.getPosition(), 50, 0, 1);
+						ex1.sprite.setPosition(enermyVec[j].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						enermyVec.erase(enermyVec.begin() + j);
+						score += 500;
+						dragonDeathAmount++;
+					}
+					bulletsVec.erase(bulletsVec.begin() + i);
+					breakk = true;
+					break;
+				}
+				else if (bulletsVec[i].Type == 3 && enermyVec[j].Type == 4 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
+				{
+					enermyVec[j].HP -= 60;
+					if (enermyVec[j].HP <= 0)
+					{
+						lizarddrop(enermyVec[j].sprite.getPosition(), 3, 0, 1);
+						enermyVec.erase(enermyVec.begin() + j);
+						score += 10;
+					}
+					bulletsVec.erase(bulletsVec.begin() + i);
+					breakk = true;
+					break;
+				}
+				else if (bulletsVec[i].Type == 3 && enermyVec[j].Type == 5 && bulletsVec[i].sprite.getGlobalBounds().intersects(enermyVec[j].sprite.getGlobalBounds()))
+				{
+					enermyVec[j].HP -= 60;
+					if (enermyVec[j].HP <= 0)
+					{
+						enermyVec.erase(enermyVec.begin() + j);
+						score += 8000;
+						score += (600 - clock2.getElapsedTime().asSeconds()) * 30;
+						menu = 99;
+						win = true;
+						std::string word;
+						std::ifstream ReadFile("Score/scoreFile.txt");
+						do {
+							ReadFile >> word;
+							std::string name = word.substr(0, word.find(','));
+							int num = std::stoi(word.substr(word.find(',') + 1, word.length()));
+							vec.push_back(std::make_pair(name, num));
+						} while (ReadFile.good());
+						ReadFile.close();
+						std::ofstream WriteFile("Score/scoreFile.txt");
+						vec.push_back(std::make_pair(inputString, score));
+						std::sort(vec.begin(), vec.end(), sortbysecdesc);
+						for (int i = 0; i < 5; i++)
+						{
+							WriteFile << vec[i].first << "," << vec[i].second << std::endl;
+							text[2 * i + 2].setString(std::to_string(i + 1) + ". " + vec[i].first);
+							text[2 * i + 3].setString(std::to_string(vec[i].second));
+						}
+						yourScoreText.setString("YOUR SCORE : " + std::to_string(score));
 						vec.clear();
 						WriteFile.close();
 						ingameMusic.stop();
@@ -2672,6 +3115,90 @@ int main()
 			}
 			if (breakk)
 				break;
+		}
+
+		for (size_t i = 0; i < enermyVec.size(); i++)
+		{
+			if (enermyVec[i].sprite.getGlobalBounds().intersects(beamSprite.getGlobalBounds()))
+			{
+				enermyVec[i].HP -= 1;
+				if (enermyVec[i].HP <= 0)
+				{
+					switch (enermyVec[i].Type)
+					{
+					case 1:
+						lizarddrop(enermyVec[i].sprite.getPosition(), 10, 0, 5);
+						ex1.sprite.setPosition(enermyVec[i].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						score += 200;
+						mageDeathAmount++;
+						break;
+					case 2:
+						lizarddrop(enermyVec[i].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[i].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[i].sprite.getPosition(), 100, 0, 0);
+						lizarddrop(enermyVec[i].sprite.getPosition(), 100, 0, 0);
+						ex1.sprite.setPosition(enermyVec[i].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(1, 1));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						score += 1000;
+						jellyDeathAmount++;
+						break;
+					case 3:
+						lizarddrop(enermyVec[i].sprite.getPosition(), 50, 0, 10);
+						ex1.sprite.setPosition(enermyVec[i].sprite.getPosition());
+						ex1.sprite.setTextureRect(sf::IntRect(0, 0, 354, 343));
+						ex1.sprite.setScale(sf::Vector2f(0.3, 0.3));
+						ex1.Type = 1;
+						explosionVec.push_back(ex1);
+						explosionSound.play();
+						score += 500;
+						dragonDeathAmount++;
+						break;
+					case 4:
+						lizarddrop(enermyVec[i].sprite.getPosition(), 3, 0, 1);
+						score += 10;
+						break;
+					case 5:
+						score += 8000;
+						score += (600 - clock2.getElapsedTime().asSeconds()) * 30;
+						menu = 99;
+						win = true;
+						std::string word;
+						std::ifstream ReadFile("Score/scoreFile.txt");
+						do {
+							ReadFile >> word;
+							std::string name = word.substr(0, word.find(','));
+							int num = std::stoi(word.substr(word.find(',') + 1, word.length()));
+							vec.push_back(std::make_pair(name, num));
+						} while (ReadFile.good());
+						ReadFile.close();
+						std::ofstream WriteFile("Score/scoreFile.txt");
+						vec.push_back(std::make_pair(inputString, score));
+						std::sort(vec.begin(), vec.end(), sortbysecdesc);
+						for (int i = 0; i < 5; i++)
+						{
+							WriteFile << vec[i].first << "," << vec[i].second << std::endl;
+							text[2 * i + 2].setString(std::to_string(i + 1) + ". " + vec[i].first);
+							text[2 * i + 3].setString(std::to_string(vec[i].second));
+						}
+						yourScoreText.setString("YOUR SCORE : " + std::to_string(score));
+						vec.clear();
+						WriteFile.close();
+						ingameMusic.stop();
+						bossMusic.stop();
+					}
+					enermyVec.erase(enermyVec.begin() + i);
+					break;
+				}
+			}
 		}
 
 		//Explosion Update
@@ -2693,6 +3220,12 @@ int main()
 		//Enermy update
 		for (size_t i = 0; i < enermyVec.size(); i++)
 		{
+			if (enermyVec[i].sprite.getGlobalBounds().intersects(playerrec.getGlobalBounds()) && !playerImmune)
+			{
+				playerHp -= 2;
+				playerImmune = true;
+				timeToNoImmune = clock2.getElapsedTime().asSeconds() + 2;
+			}
 			//bat And boss To player
 			if (enermyVec[i].Type == 4 || enermyVec[i].Type == 5)
 			{
@@ -2719,6 +3252,7 @@ int main()
 				b1.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
 				b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
 				bulletsVec.push_back(Bullet(b1));
+				laserSound.play();
 			}
 			else if (enermyVec[i].Type == 2 && enermyVec[i].totalTimeATK > enermyVec[i].TimeAtk)
 			{
@@ -2795,6 +3329,7 @@ int main()
 				b1.sprite.setScale(sf::Vector2f(0.5f, 0.5f));
 				b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
 				bulletsVec.push_back(Bullet(b1));
+				laserSound.play();
 			}
 			else if (enermyVec[i].Type == 3 && enermyVec[i].totalTimeATK > enermyVec[i].TimeAtk)
 			{
@@ -2816,8 +3351,9 @@ int main()
 			{
 				enermyVec[i].totalTimeATK -= enermyVec[i].TimeAtk;
 				//bat spawn
-				int randdom = rand();
-				if (randdom % 100 < 10);
+				int randdom = rand() % 100;
+				if (randdom < 20)
+				{
 					for (short int r = 0; r < 7; r++)
 					{
 						e4.sprite.setPosition(enermyVec[i].sprite.getPosition().x + 170 / 2 * enermyVec[i].sprite.getScale().x, enermyVec[i].sprite.getPosition().y + 125 / 2 * enermyVec[i].sprite.getScale().y);
@@ -2827,8 +3363,100 @@ int main()
 						e4.TimeAtk = 3 + (rand() % 20) / 10.0;
 						enermyVec.push_back(Enermy(e4));
 					}
+					enermyVec[i].totalTimeATK -= 3;
+				}
+				else if(randdom < 50)
+				{
+					//ซ้าย
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 - 1, enermyVec[i].sprite.getPosition().y + 120);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//ขวา
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 + 1, enermyVec[i].sprite.getPosition().y + 120);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//ล่าง
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120 + 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//บน
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120 - 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//บนขวา
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 + 1, enermyVec[i].sprite.getPosition().y + 120 - 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//บนซ้าย
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 - 1, enermyVec[i].sprite.getPosition().y + 120 - 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//ล่างขวา
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 + 1, enermyVec[i].sprite.getPosition().y + 120 + 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					//ล่างซ้าย
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					target = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145 - 1, enermyVec[i].sprite.getPosition().y + 120 + 1);
+					aimDirLizard = target - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(1, 1));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					enermyVec[i].totalTimeATK += 1;
+				}
+				else
+				{
+					base = sf::Vector2f(enermyVec[i].sprite.getPosition().x + 145, enermyVec[i].sprite.getPosition().y + 120);
+					aimDirLizard = playerCenter - base;
+					aimDirNormLizard = aimDirLizard / sqrt(aimDirLizard.x * aimDirLizard.x + aimDirLizard.y * aimDirLizard.y);
+
+					b1.sprite.setPosition(base);
+					b1.sprite.setScale(sf::Vector2f(2, 2));
+					b1.currVelocity = aimDirNormLizard * 10.0f;//Speed
+					bulletsVec.push_back(Bullet(b1));
+					laserSound.play();
+					enermyVec[i].totalTimeATK += 1;
+				}
 			}
 		}
+
 		//Draw
 		window.setView(cam);
 		window.clear();
@@ -2862,6 +3490,7 @@ int main()
 
 			window.draw(EnterNametext);
 			window.draw(enter1_13C);
+			window.draw(pressEntertext);
 
 			window.draw(backtext);
 		}
@@ -2878,6 +3507,25 @@ int main()
 			window.draw(highscoretext);
 			for (int i = 0; i < 12; i++)
 				window.draw(text[i]);
+
+			window.draw(backtext);
+		}
+		else if (menu == 2)
+		{
+			window.draw(menuSky);
+			window.draw(menuRock1);
+			window.draw(menuRock2);
+			window.draw(menuClound1);
+			window.draw(menuClound2);
+			window.draw(menuClound3);
+			window.draw(menuClound4);
+
+			window.draw(how1);
+			window.draw(how2);
+			window.draw(how3);
+			window.draw(how4);
+			window.draw(howtoplaydetailtext);
+			window.draw(kkkk);
 
 			window.draw(backtext);
 		}
@@ -2908,7 +3556,7 @@ int main()
 		magesprite.setTextureRect(sf::IntRect(122 * mageAnimation8, 0, 122, 110));
 		magesprite.setPosition(500, 1500);
 		//window.draw(magesprite);//
-
+		
 		for (int i = 0; i < maxlizard; i++)
 		{
 			window.draw(lizardHpBar[i]);
@@ -2954,24 +3602,35 @@ int main()
 
 			window.draw(timeLefttext);
 			window.draw(scoretext);
-			window.draw(cointext);
+			//window.draw(cointext);
 
 			window.draw(bgHpBar);
-			//window.draw(bgManaBar);
+			window.draw(bgManaBar);
 			window.draw(HpBar);
-			//window.draw(ManaBar);
+			window.draw(ManaBar);
 			window.draw(hptext);
-			//window.draw(manatext);
+			window.draw(manatext);
 
 			window.draw(NameInGame);
 			window.draw(albusSprite);
-
+			
+			window.draw(whiteBgSkillIcon);
 			switch (skillSelect)
 			{
 			case 1:
 				window.draw(skillshapeBg2);
 				window.draw(skillshapeBg3);
 				window.draw(skillshapeBg1);
+				break;
+			case 2:
+				window.draw(skillshapeBg3);
+				window.draw(skillshapeBg1);
+				window.draw(skillshapeBg2);
+				break;
+			case 3:
+				window.draw(skillshapeBg1);
+				window.draw(skillshapeBg2);
+				window.draw(skillshapeBg3);
 				break;
 			}
 		}
